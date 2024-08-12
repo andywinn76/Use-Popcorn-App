@@ -1,3 +1,23 @@
+Collect and rate your favorite movies using API calls, and React's useState, useEffect, and custom use hooks.
+
+This app was created while coding along with Jonas React course entitled "The Ultimate React Course 2024: React, Next.js, Redux & More" which can be found here:
+
+https://www.udemy.com/course/the-ultimate-react-course/
+
+This is a code-along course and provides a very deep understanding of how and why React works the way it does. This lesson was especially helpful while learning React hooks.
+
+App-v1.js uses a pre-generated array to simulate movies being stored locally. This provides basic app functionality but no API calls to search for movies.
+
+App-v2.js begins to build on functionality including extracting the star rating system into a separate component. Additionally, search functionality via API call to ombdapi.com is implemented.
+
+App-v3.js adds custom hooks useMovies to query API for a list of movies and useLocalStorageState as a reusable hook to read previously added movies when the app mounts.
+
+App.js is teh final version, with a useKey custom hook allowing behavior of any keypress to be read, resulting in the behavior defined by the function passed into the hook.
+
+This coding exercise was challenging and fun and left me with a deep understanding of hooks, state, and much more.
+
+===================================================================
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

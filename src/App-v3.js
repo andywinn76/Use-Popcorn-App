@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import StarRating from "./StarRating";
 import { useMovies } from "./useMovies";
 import { useLocalStorageState } from "./useLocalStorageState";
-import { useKey } from "./useKey";
 
 const KEY = '9067ef3';
 
@@ -29,11 +28,20 @@ function Logo() {
 function Search({query, setQuery}) {  
   const inputEl = useRef(null);
 
-  useKey("Enter", function () {
-    if (document.activeElement === inputEl.current) return;
-    inputEl.current.focus();
-    setQuery('');
-  })
+  useEffect(function() {
+
+    function callback(e) {
+      if (document.activeElement === inputEl.current) return;
+      if (e.code === "Enter") {
+        inputEl.current.focus();
+        setQuery('');
+      }      
+    }
+
+    document.addEventListener('keydown', callback)
+    return () => {document.removeEventListener('keydown', callback)}
+  }, 
+  [setQuery])
 
   return (
     <input
@@ -127,8 +135,10 @@ function MovieDetails({selectedId, onCloseMovie, onAddWatched, watched}) {
 
   const countRef = useRef(0)
   
-  useEffect(function() {    
-    if (userRating) countRef.current = countRef.current + 1;    
+  useEffect(function() {
+    console.log(`current value of countRef is ${countRef.current} (before checking if userRating exists)`)
+    if (userRating) countRef.current = countRef.current + 1;
+    console.log(`current value of countRef is ${countRef.current} (after countRef increments by 1)`)
   }, [userRating])
 
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
@@ -170,6 +180,7 @@ function MovieDetails({selectedId, onCloseMovie, onAddWatched, watched}) {
       const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
       );
       const data = await res.json();
+      console.log(data);
       setMovie(data);
       setIsLoading(false);
     }    
@@ -182,12 +193,30 @@ function MovieDetails({selectedId, onCloseMovie, onAddWatched, watched}) {
 
     return function() {
       document.title = "usePopcorn";
+      //The following title variable is still available to JS because of closures. Cleanup will run after rerenders and after unmounting.
+      console.log(`Cleanup effect successful for movie ${title}`)
     }
   }, [title])
 
-  useKey("Escape", onCloseMovie);
+  useEffect(function() {
+    function callback (e) {
+      if(e.code === 'Escape') {
+        onCloseMovie();
+        console.log("CLOSING");
+      };
+    };
+
+    document.addEventListener('keydown', callback);
+    //Cleanup effect to remove Escape key listener
+    return function() {
+      document.removeEventListener('keydown', callback)
+    }
+  }, [onCloseMovie]
+);
 
   return (
+    
+    
     <div className="details">
       {isLoading ? <Loader /> :
       <>
@@ -317,11 +346,18 @@ function handleCloseMovie() {
 
 function handleAddWatched(movie) {
   setWatched(watched => [...watched, movie]);
+  // localStorage.setItem('watched', JSON.stringify([...watched, movie]))
+  console.log("setWatched updated...");
 }
 
 function handleDeleteWatched(id) {
   setWatched(watched => watched.filter((movie) => movie.imdbID !== id));
+  console.log("Movie deleted");
 }
+
+
+
+
 
   return (
     <>
